@@ -202,8 +202,6 @@ export function SnowForm<TSchema extends ZodObjectOrEffects, TResponse = unknown
         console.error('[SnowForm] Submit error:', error);
       }
 
-      executeOnErrorBehavior(formRef.current, form.formState.errors);
-
       if (onSubmitError) {
         onSubmitError(setManualFormErrors, error);
       }
