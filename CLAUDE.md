@@ -1,4 +1,4 @@
-# CLAUDE.md - @snowpact/react-rhf-zod-form
+# CLAUDE.md - @snowpact/snowform
 
 Automatic form generation from Zod schemas with react-hook-form.
 

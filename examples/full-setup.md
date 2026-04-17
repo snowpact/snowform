@@ -23,8 +23,8 @@ import { toast } from 'sonner';
 import {
   setupSnowForm,
   normalizeDateToISO,
-} from '@snowpact/react-rhf-zod-form';
-import type { RegisteredComponentProps, SubmitButtonProps } from '@snowpact/react-rhf-zod-form';
+} from '@snowpact/snowform';
+import type { RegisteredComponentProps, SubmitButtonProps } from '@snowpact/snowform';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

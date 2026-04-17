@@ -196,7 +196,7 @@ let isSetup = false;
  *
  * @example Basic setup
  * ```typescript
- * import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
+ * import { setupSnowForm } from '@snowpact/snowform';
  *
  * setupSnowForm({
  *   translate: (key) => key, // Identity function if no i18n
@@ -205,7 +205,7 @@ let isSetup = false;
  *
  * @example With i18next
  * ```typescript
- * import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
+ * import { setupSnowForm } from '@snowpact/snowform';
  * import i18next from 'i18next';
  *
  * setupSnowForm({
@@ -215,7 +215,7 @@ let isSetup = false;
  *
  * @example Full configuration
  * ```typescript
- * import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
+ * import { setupSnowForm } from '@snowpact/snowform';
  * import { MyInput, MySelect, MyButton } from './components';
  *
  * setupSnowForm({

@@ -5,14 +5,14 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react()],
   root: resolve(__dirname),
-  base: '/react-rhf-zod-form/',
+  base: '/snowform/',
   build: {
     outDir: resolve(__dirname, '../demo-dist'),
     emptyOutDir: true,
   },
   resolve: {
     alias: {
-      '@snowpact/react-rhf-zod-form': resolve(__dirname, '../src'),
+      '@snowpact/snowform': resolve(__dirname, '../src'),
     },
   },
 });
