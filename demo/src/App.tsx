@@ -258,7 +258,7 @@ export function App() {
       {/* Main Content */}
       <div className="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">@snowpact/react-rhf-zod-form</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">@snowpact/snowform</h1>
           <p className="text-gray-600 mb-8">
             Automatic form generation from Zod schemas with react-hook-form
           </p>

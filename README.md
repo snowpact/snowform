@@ -1,8 +1,10 @@
-# @snowpact/react-rhf-zod-form
+# @snowpact/snowform
+
+> Previously published as `@snowpact/react-rhf-zod-form` (now deprecated). Migration: replace the package name in imports and `package.json`, nothing else changed.
 
 Automatic form generation from Zod schemas with react-hook-form.
 
-**[Live Demo](https://snowpact.github.io/react-rhf-zod-form/)**
+**[Live Demo](https://snowpact.github.io/snowform/)**
 
 ## Requirements
 
@@ -24,7 +26,7 @@ Automatic form generation from Zod schemas with react-hook-form.
 ## Installation
 
 ```bash
-npm install @snowpact/react-rhf-zod-form
+npm install @snowpact/snowform
 ```
 
 ### Peer Dependencies
@@ -40,8 +42,8 @@ npm install react-hook-form zod @hookform/resolvers
 Register your components once at app startup (e.g., `app/setup.ts`, `_app.tsx`, or `main.tsx`).
 
 ```tsx
-import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
-import type { RegisteredComponentProps, FormUILabelProps } from '@snowpact/react-rhf-zod-form';
+import { setupSnowForm } from '@snowpact/snowform';
+import type { RegisteredComponentProps, FormUILabelProps } from '@snowpact/snowform';
 
 // Example custom input component
 function MyInput({ value, onChange, placeholder, disabled, className, name }: RegisteredComponentProps<string>) {
@@ -107,7 +109,7 @@ setupSnowForm({
 ### 2. Use SnowForm
 
 ```tsx
-import { SnowForm } from '@snowpact/react-rhf-zod-form';
+import { SnowForm } from '@snowpact/snowform';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -172,7 +174,7 @@ function MyForm() {
 ### With i18next
 
 ```tsx
-import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
+import { setupSnowForm } from '@snowpact/snowform';
 import i18next from 'i18next';
 
 setupSnowForm({
@@ -184,7 +186,7 @@ setupSnowForm({
 ### With next-intl
 
 ```tsx
-import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
+import { setupSnowForm } from '@snowpact/snowform';
 import { useTranslations } from 'next-intl';
 
 // In a client component
@@ -486,7 +488,7 @@ import type {
   FormUILabelProps,
   FormUIDescriptionProps,
   FormUIErrorMessageProps,
-} from '@snowpact/react-rhf-zod-form';
+} from '@snowpact/snowform';
 ```
 
 ## License

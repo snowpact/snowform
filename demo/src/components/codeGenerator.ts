@@ -2,13 +2,13 @@ import type { DemoConfig } from './types';
 
 export function generateInstallCode(): string {
   return `npm install react-hook-form @hookform/resolvers zod
-npm install @snowpact/react-rhf-zod-form`;
+npm install @snowpact/snowform`;
 }
 
 export function generateSetupCode(): string {
   return `// Run once at app startup (e.g., app/setup.ts, _app.tsx, main.tsx)
-import { setupSnowForm } from '@snowpact/react-rhf-zod-form';
-import type { RegisteredComponentProps } from '@snowpact/react-rhf-zod-form';
+import { setupSnowForm } from '@snowpact/snowform';
+import type { RegisteredComponentProps } from '@snowpact/snowform';
 
 // Your input component
 function MyInput({ value, onChange, placeholder, disabled, name }: RegisteredComponentProps<string>) {
@@ -70,7 +70,7 @@ export function generateFormCode(config: DemoConfig): string {
   const debugProp = config.showDebugMode ? '\n      debug={true}' : '';
 
   if (config.renderMode === 'children') {
-    return `import { SnowForm } from '@snowpact/react-rhf-zod-form';
+    return `import { SnowForm } from '@snowpact/snowform';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -123,7 +123,7 @@ function MyForm() {
 }`;
   }
 
-  return `import { SnowForm } from '@snowpact/react-rhf-zod-form';
+  return `import { SnowForm } from '@snowpact/snowform';
 import { z } from 'zod';
 
 const schema = z.object({

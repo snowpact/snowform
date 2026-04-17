@@ -43,7 +43,7 @@ let formUIComponents: FormUIComponents = {};
  *
  * @example
  * ```typescript
- * import { registerComponent } from '@snowpact/react-rhf-zod-form';
+ * import { registerComponent } from '@snowpact/snowform';
  * import { MyCustomInput } from './MyCustomInput';
  *
  * registerComponent('text', MyCustomInput);
@@ -60,7 +60,7 @@ export function registerComponent<TValue = unknown>(type: FieldType, component: 
  *
  * @example
  * ```typescript
- * import { registerComponents } from '@snowpact/react-rhf-zod-form';
+ * import { registerComponents } from '@snowpact/snowform';
  *
  * registerComponents({
  *   text: MyInput,
