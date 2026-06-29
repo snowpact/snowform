@@ -244,12 +244,32 @@ export type SnowFormChildren<T extends FieldValues> = (helpers: SnowFormHelpers<
 // =============================================================================
 
 /**
- * A Zod object schema, possibly wrapped in ZodEffects (refine, superRefine, transform)
+ * Structural match for a Zod 4 schema. Zod 4 moved its output type to
+ * `_zod.output` (and removed the v3 `ZodEffects` wrapper); an object schema's
+ * output is itself an object. Matching structurally lets SnowForm accept Zod 4
+ * schemas without importing a specific Zod entrypoint.
+ */
+type ZodV4ObjectSchema = { readonly _zod: { readonly output: object } };
+
+/**
+ * A Zod object schema (Zod 3 or Zod 4), possibly wrapped in effects
+ * (refine, superRefine, transform).
  */
 export type ZodObjectOrEffects =
   | z.ZodObject<z.ZodRawShape>
   | z.ZodEffects<z.ZodObject<z.ZodRawShape>>
-  | z.ZodEffects<z.ZodEffects<z.ZodObject<z.ZodRawShape>>>;
+  | z.ZodEffects<z.ZodEffects<z.ZodObject<z.ZodRawShape>>>
+  | ZodV4ObjectSchema;
+
+/**
+ * Infer the form values type from a Zod schema, version-agnostically.
+ * Zod 4 stores its output type at `_zod.output`; Zod 3 at `_output`.
+ */
+export type InferZodValues<T> = T extends { _zod: { output: infer O } }
+  ? O
+  : T extends { _output: infer O }
+    ? O
+    : never;
 
 /**
  * Props for the SnowForm component
@@ -257,7 +277,11 @@ export type ZodObjectOrEffects =
  * @typeParam TSchema - The Zod schema type (supports refine/superRefine)
  * @typeParam TResponse - The response type from onSubmit
  */
-export interface SnowFormProps<TSchema extends ZodObjectOrEffects, TResponse = unknown> {
+export interface SnowFormProps<
+  TSchema extends ZodObjectOrEffects,
+  TResponse = unknown,
+  TValues extends FieldValues = InferZodValues<TSchema>,
+> {
   /** Zod schema defining the form structure */
   schema: TSchema;
 
@@ -265,13 +289,13 @@ export interface SnowFormProps<TSchema extends ZodObjectOrEffects, TResponse = u
   overrides?: Partial<Record<string, FieldConfig>>;
 
   /** Static default values */
-  defaultValues?: Partial<z.infer<TSchema>>;
+  defaultValues?: Partial<TValues>;
 
   /** Async function to fetch default values */
-  fetchDefaultValues?: () => Promise<Partial<z.infer<TSchema>>>;
+  fetchDefaultValues?: () => Promise<Partial<TValues>>;
 
   /** Submit handler - receives validated form values */
-  onSubmit?: (values: z.infer<TSchema>) => Promise<TResponse>;
+  onSubmit?: (values: TValues) => Promise<TResponse>;
 
   /** Called after successful submission */
   onSuccess?: (response: TResponse) => void;
@@ -289,7 +313,7 @@ export interface SnowFormProps<TSchema extends ZodObjectOrEffects, TResponse = u
   id?: string;
 
   /** Custom layout via render function */
-  children?: SnowFormChildren<z.infer<TSchema>>;
+  children?: SnowFormChildren<TValues>;
 }
 
 // =============================================================================

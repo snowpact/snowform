@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useForm, type DefaultValues, type FieldErrors, type Path, type UseFormReturn } from 'react-hook-form';
-import type { z } from 'zod';
+import {
+  useForm,
+  type DefaultValues,
+  type FieldErrors,
+  type FieldValues,
+  type Path,
+  type UseFormReturn,
+} from 'react-hook-form';
 
 import { SnowFormField } from './SnowFormField';
 import { Form, FormField } from './FormProvider';
@@ -8,7 +14,7 @@ import { executeOnErrorBehavior } from './registry/behaviorRegistry';
 import { getRegisteredSubmitButton } from './registry/componentRegistry';
 import { getFormClass } from './registry/stylesRegistry';
 import { getT } from './registry/translationRegistry';
-import type { SchemaFieldInfo, SnowFormHelpers, SnowFormProps, ZodObjectOrEffects } from './types';
+import type { InferZodValues, SchemaFieldInfo, SnowFormHelpers, SnowFormProps, ZodObjectOrEffects } from './types';
 import {
   applyEmptyValueOverrides,
   cn,
@@ -60,7 +66,11 @@ import {
  * </SnowForm>
  * ```
  */
-export function SnowForm<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
+export function SnowForm<
+  TSchema extends ZodObjectOrEffects,
+  TResponse = unknown,
+  TValues extends FieldValues = InferZodValues<TSchema>,
+>({
   schema,
   overrides = {},
   defaultValues: providedDefaultValues,
@@ -72,8 +82,8 @@ export function SnowForm<TSchema extends ZodObjectOrEffects, TResponse = unknown
   className,
   id,
   children,
-}: SnowFormProps<TSchema, TResponse>): React.ReactElement {
-  type FormValues = z.infer<TSchema>;
+}: SnowFormProps<TSchema, TResponse, TValues>): React.ReactElement {
+  type FormValues = TValues;
 
   const t = getT();
   const formRef = useRef<HTMLFormElement>(null);
@@ -111,7 +121,7 @@ export function SnowForm<TSchema extends ZodObjectOrEffects, TResponse = unknown
   );
 
   const form = useForm<FormValues>({
-    resolver: createZodResolver(schema),
+    resolver: createZodResolver<FormValues>(schema),
     defaultValues: computedDefaultValues,
   });
 
