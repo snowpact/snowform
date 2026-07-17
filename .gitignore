@@ -5,3 +5,4 @@ demo-dist/
 .DS_Store
 .claude
 .context
+.npmrc
