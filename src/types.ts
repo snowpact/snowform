@@ -288,11 +288,13 @@ export interface SnowFormProps<
   /** Field customizations - uses permissive FieldConfig for flexibility */
   overrides?: Partial<Record<string, FieldConfig>>;
 
-  /** Static default values */
-  defaultValues?: Partial<TValues>;
+  /**
+   * Static default values.
+   */
+  defaultValues?: Partial<InferZodValues<TSchema>>;
 
-  /** Async function to fetch default values */
-  fetchDefaultValues?: () => Promise<Partial<TValues>>;
+  /** Async function to fetch default values*/
+  fetchDefaultValues?: () => Promise<Partial<InferZodValues<TSchema>>>;
 
   /** Submit handler - receives validated form values */
   onSubmit?: (values: TValues) => Promise<TResponse>;

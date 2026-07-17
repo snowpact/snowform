@@ -116,7 +116,9 @@ export function SnowForm<
   // ==========================================================================
 
   const computedDefaultValues = useMemo(
-    () => initializeDefaultValues<FormValues>(schemaShape, providedDefaultValues, overrides ?? {}),
+    // `defaultValues` is typed on the schema (`InferZodValues<TSchema>`) to avoid
+    // narrowing `TValues`; it equals `FormValues` unless a caller overrides TValues.
+    () => initializeDefaultValues<FormValues>(schemaShape, providedDefaultValues as Partial<FormValues>, overrides ?? {}),
     [schemaShape, providedDefaultValues, overrides]
   );
 
