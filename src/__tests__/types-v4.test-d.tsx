@@ -65,3 +65,52 @@ const _pref: SnowFormProps<typeof v4refined> = {
   },
 };
 void _pref;
+
+// --- Regression: a PARTIAL defaultValues must NOT narrow the values type ---
+// (defaultValues={{ token }} previously inferred TValues = { token }, dropping `password`.)
+const partial = z.object({ token: z.string(), password: z.string() });
+
+const _pPartial: SnowFormProps<typeof partial> = {
+  schema: partial,
+  defaultValues: { token: 'x' }, // only one of two keys
+  onSubmit: async values => {
+    const t: string = values.token;
+    const p: string = values.password; // must still exist despite partial defaultValues
+    void t;
+    void p;
+  },
+};
+void _pPartial;
+
+// same via the actual component (the reported repro)
+const _elPartial = (
+  <SnowForm
+    schema={partial}
+    defaultValues={{ token: 'x' }}
+    onSubmit={async values => {
+      const p: string = values.password;
+      void p;
+    }}
+  />
+);
+void _elPartial;
+
+// a partial fetchDefaultValues must not narrow either
+const _pFetch: SnowFormProps<typeof partial> = {
+  schema: partial,
+  fetchDefaultValues: async () => ({ token: 'x' }),
+  onSubmit: async values => {
+    const p: string = values.password;
+    void p;
+  },
+};
+void _pFetch;
+
+// defaultValues must still be type-checked against the schema (unknown key rejected)
+const _pBadKey: SnowFormProps<typeof partial> = {
+  schema: partial,
+  // @ts-expect-error `nope` is not a field of the schema
+  defaultValues: { nope: 'x' },
+  onSubmit: async () => {},
+};
+void _pBadKey;
