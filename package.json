@@ -1,6 +1,6 @@
 {
   "name": "@snowpact/snowform",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Automatic form generation from Zod schemas with react-hook-form",
   "author": "Snowpact",
   "license": "MIT",
