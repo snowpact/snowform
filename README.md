@@ -137,15 +137,16 @@ function MyForm() {
 
 ### Automatic Detection (from Zod schema)
 
-| Zod Type             | Default Component |
-| -------------------- | ----------------- |
-| `z.string()`         | Text input        |
-| `z.string().email()` | Email input       |
-| `z.number()`         | Number input      |
-| `z.boolean()`        | Checkbox          |
-| `z.date()`           | Date picker       |
-| `z.enum([...])`      | Select            |
-| `z.array(z.T)`       | Array of T inputs |
+| Zod Type                         | Default Component |
+| -------------------------------- | ----------------- |
+| `z.string()`                     | Text input        |
+| `z.string().email()`             | Email input       |
+| `z.number()`                     | Number input      |
+| `z.boolean()`                    | Checkbox          |
+| `z.date()`                       | Date picker       |
+| `z.enum([...])`                  | Select            |
+| `z.union([z.literal('a'), ...])` | Select            |
+| `z.array(z.T)`                   | Array of T inputs |
 
 ### Available Built-in Types (via overrides)
 

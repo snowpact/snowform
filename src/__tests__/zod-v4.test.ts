@@ -80,6 +80,64 @@ describe('getZodFieldInfo with Zod 4 schemas', () => {
     expect(info.isOptional).toBe(true);
   });
 
+  it('should treat a union of string literals as an enum', () => {
+    const info = getZodFieldInfo(z4.union([z4.literal('a'), z4.literal('b')]));
+    expect(info.baseType).toBe('enum');
+    expect(info.enumValues).toEqual(['a', 'b']);
+    expect(info.isOptional).toBe(false);
+  });
+
+  it('should treat a nullable literal union as an optional enum (OpenAPI generator output)', () => {
+    const info = getZodFieldInfo(z4.union([z4.literal('a'), z4.literal('b'), z4.literal(null)]).nullable());
+    expect(info.baseType).toBe('enum');
+    expect(info.enumValues).toEqual(['a', 'b']);
+    expect(info.isOptional).toBe(true);
+  });
+
+  it('should read every value of a multi-value literal', () => {
+    const info = getZodFieldInfo(z4.union([z4.literal(['a', 'b']), z4.literal('c')]));
+    expect(info.baseType).toBe('enum');
+    expect(info.enumValues).toEqual(['a', 'b', 'c']);
+  });
+
+  it('should mark a literal union optional when it accepts null or an empty string', () => {
+    expect(getZodFieldInfo(z4.union([z4.literal('a'), z4.literal(null)])).isOptional).toBe(true);
+    const withEmpty = getZodFieldInfo(z4.union([z4.literal('a'), z4.literal('')]));
+    expect(withEmpty.isOptional).toBe(true);
+    expect(withEmpty.enumValues).toEqual(['a']);
+  });
+
+  it('should unwrap optional, nullish and default around a literal union', () => {
+    const union = z4.union([z4.literal('a'), z4.literal('b')]);
+    expect(getZodFieldInfo(union.optional()).baseType).toBe('enum');
+    expect(getZodFieldInfo(union.optional()).isOptional).toBe(true);
+    expect(getZodFieldInfo(union.nullish()).enumValues).toEqual(['a', 'b']);
+    expect(getZodFieldInfo(union.default('a')).baseType).toBe('enum');
+  });
+
+  it('should detect an array of literal unions as an array of enums', () => {
+    const info = getZodFieldInfo(z4.array(z4.union([z4.literal('a'), z4.literal('b')])));
+    expect(info.baseType).toBe('array');
+    expect(info.arrayElementInfo?.baseType).toBe('enum');
+    expect(info.arrayElementInfo?.enumValues).toEqual(['a', 'b']);
+  });
+
+  it('should not treat a union of non-string literals as an enum', () => {
+    expect(getZodFieldInfo(z4.union([z4.literal(1), z4.literal(2)])).baseType).toBe('unknown');
+    expect(getZodFieldInfo(z4.union([z4.literal('a'), z4.literal(1)])).baseType).toBe('unknown');
+    expect(getZodFieldInfo(z4.union([z4.literal(null), z4.literal('')])).baseType).toBe('unknown');
+  });
+
+  it('should keep resolving a mixed union to its non-literal member', () => {
+    const info = getZodFieldInfo(z4.union([z4.literal('a'), z4.number()]));
+    expect(info.baseType).toBe('number');
+    expect(info.enumValues).toBeUndefined();
+  });
+
+  it('should leave a single literal untouched', () => {
+    expect(getZodFieldInfo(z4.literal('a')).baseType).toBe('unknown');
+  });
+
   it('should detect email on deeply wrapped schema', () => {
     const info = getZodFieldInfo(z4.string().email().optional().nullable());
     expect(info.baseType).toBe('string');
