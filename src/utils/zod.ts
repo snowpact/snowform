@@ -26,6 +26,7 @@ interface V4Def {
   options?: V4Schema[]; // union members
   shape?: Record<string, V4Schema>; // object fields
   entries?: Record<string, unknown>; // enum values
+  values?: unknown[]; // literal values
   format?: string; // string format (e.g. 'email')
   checks?: V4Check[]; // string-format checks (deprecated `.email()` form)
   in?: V4Schema; // pipe input side (transform)
@@ -36,6 +37,27 @@ interface V4Schema {
 
 function isV4Schema(schema: unknown): schema is V4Schema {
   return typeof schema === 'object' && schema !== null && '_zod' in schema;
+}
+
+// =============================================================================
+// Literal unions
+// =============================================================================
+
+interface LiteralUnionInfo {
+  enumValues: string[];
+  isOptional: boolean;
+}
+
+const EMPTY_LITERALS: unknown[] = [null, undefined, ''];
+
+/**
+ * A union made only of literals is an enum: its string values are the options, while `null`,
+ * `undefined` and `''` only make it optional. OpenAPI generators emit nullable enums this way.
+ */
+function getLiteralUnionInfo(literalValues: unknown[]): LiteralUnionInfo | undefined {
+  const options = literalValues.filter(value => !EMPTY_LITERALS.includes(value));
+  if (options.length === 0 || !options.every(value => typeof value === 'string')) return undefined;
+  return { enumValues: options as string[], isOptional: options.length < literalValues.length };
 }
 
 // =============================================================================
@@ -79,9 +101,24 @@ function v4Unwrap(schema: V4Schema): V4Schema {
   return current;
 }
 
+function v4LiteralUnionInfo(def: V4Def): LiteralUnionInfo | undefined {
+  if (def.type !== 'union' || !def.options) return undefined;
+
+  const literalValues: unknown[] = [];
+  for (const option of def.options) {
+    const optionDef = v4Def(v4Unwrap(option));
+    if (optionDef.type !== 'literal') return undefined;
+    literalValues.push(...(optionDef.values ?? []));
+  }
+  return getLiteralUnionInfo(literalValues);
+}
+
 function v4IsOptional(schema: V4Schema): boolean {
   const def = v4Def(schema);
   if (def.type === 'optional' || def.type === 'nullable') return true;
+
+  const literalUnion = v4LiteralUnionInfo(def);
+  if (literalUnion) return literalUnion.isOptional;
 
   if (def.type === 'union' && def.options) {
     for (const option of def.options) {
@@ -146,6 +183,14 @@ function getV4FieldInfo(field: V4Schema): SchemaFieldInfo {
       baseType = 'array';
       if (def.element) arrayElementInfo = getV4FieldInfo(def.element);
       break;
+    case 'union': {
+      const literalUnion = v4LiteralUnionInfo(def);
+      if (literalUnion) {
+        baseType = 'enum';
+        enumValues = literalUnion.enumValues;
+      }
+      break;
+    }
   }
 
   return {
@@ -161,12 +206,27 @@ function getV4FieldInfo(field: V4Schema): SchemaFieldInfo {
 // Zod 3 introspection (reads `_def`, uses `instanceof`)
 // =============================================================================
 
+function v3LiteralUnionInfo(schema: z.ZodTypeAny): LiteralUnionInfo | undefined {
+  if (!(schema instanceof z.ZodUnion)) return undefined;
+
+  const literalValues: unknown[] = [];
+  for (const option of schema._def.options as z.ZodTypeAny[]) {
+    const unwrapped = unwrapSchema(option);
+    if (!(unwrapped instanceof z.ZodLiteral)) return undefined;
+    literalValues.push(unwrapped._def.value);
+  }
+  return getLiteralUnionInfo(literalValues);
+}
+
 /**
  * Check if a Zod schema is optional (accepts undefined, null, or empty string)
  */
 function isOptional(schema: z.ZodTypeAny): boolean {
   if (schema instanceof z.ZodOptional) return true;
   if (schema instanceof z.ZodNullable) return true;
+
+  const literalUnion = v3LiteralUnionInfo(schema);
+  if (literalUnion) return literalUnion.isOptional;
 
   // Handle ZodUnion - e.g., z.string().url().optional().or(z.literal(''))
   // If one option is a literal (like empty string) or optional/nullable, the field is effectively optional
@@ -279,6 +339,12 @@ function getV3FieldInfo(field: z.ZodTypeAny): SchemaFieldInfo {
     baseType = 'array';
     // Extract element type info recursively
     arrayElementInfo = getV3FieldInfo(unwrapped._def.type);
+  } else {
+    const literalUnion = v3LiteralUnionInfo(unwrapped);
+    if (literalUnion) {
+      baseType = 'enum';
+      enumValues = literalUnion.enumValues;
+    }
   }
 
   return {

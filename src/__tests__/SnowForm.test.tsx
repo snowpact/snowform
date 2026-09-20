@@ -60,6 +60,36 @@ describe('SnowForm', () => {
 
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
+
+    it('should render a union of string literals as a select with its options', () => {
+      const schema = z.object({
+        scope: z.union([z.literal('city'), z.literal('county'), z.literal(null)]).nullable(),
+      });
+
+      render(<SnowForm schema={schema} />);
+
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'city' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'county' })).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: 'null' })).not.toBeInTheDocument();
+    });
+
+    it('should submit the option picked in a literal-union select', async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn().mockResolvedValue({ success: true });
+      const schema = z.object({
+        scope: z.union([z.literal('city'), z.literal('county')]),
+      });
+
+      render(<SnowForm schema={schema} onSubmit={onSubmit} />);
+
+      await user.selectOptions(screen.getByRole('combobox'), 'county');
+      await user.click(screen.getByRole('button', { name: /submit/i }));
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith({ scope: 'county' });
+      });
+    });
   });
 
   // ===========================================================================
